@@ -1,0 +1,200 @@
+{
+  "model_version": "v1.0",
+  "dataset_size": 1200,
+  "test_split_size": 240,
+  "feature_count": 1423,
+  "severity_metrics": {
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "labels": [
+      "Critical",
+      "High",
+      "Medium",
+      "Low"
+    ],
+    "confusion_matrix": [
+      [
+        64,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        68,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        64,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        44
+      ]
+    ]
+  },
+  "priority_metrics": {
+    "accuracy": 27.5,
+    "precision": 26.23,
+    "recall": 27.5,
+    "f1_score": 25.3,
+    "labels": [
+      "P1",
+      "P2",
+      "P3",
+      "P4"
+    ],
+    "confusion_matrix": [
+      [
+        21,
+        17,
+        24,
+        2
+      ],
+      [
+        23,
+        19,
+        24,
+        2
+      ],
+      [
+        19,
+        20,
+        25,
+        0
+      ],
+      [
+        20,
+        14,
+        9,
+        1
+      ]
+    ]
+  },
+  "category_metrics": {
+    "accuracy": 13.33,
+    "precision": 12.0,
+    "recall": 13.33,
+    "f1_score": 12.19,
+    "labels": [
+      "Database",
+      "Functional",
+      "Integration",
+      "Network",
+      "Other",
+      "Payment",
+      "Performance",
+      "Security",
+      "UI/UX"
+    ],
+    "confusion_matrix": [
+      [
+        0,
+        4,
+        3,
+        3,
+        1,
+        2,
+        0,
+        8,
+        8
+      ],
+      [
+        6,
+        6,
+        1,
+        0,
+        2,
+        3,
+        1,
+        3,
+        12
+      ],
+      [
+        4,
+        4,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        7
+      ],
+      [
+        1,
+        6,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        7
+      ],
+      [
+        1,
+        1,
+        0,
+        0,
+        2,
+        2,
+        0,
+        1,
+        7
+      ],
+      [
+        3,
+        3,
+        4,
+        1,
+        0,
+        0,
+        1,
+        2,
+        4
+      ],
+      [
+        1,
+        1,
+        3,
+        0,
+        0,
+        1,
+        0,
+        4,
+        7
+      ],
+      [
+        2,
+        8,
+        0,
+        2,
+        1,
+        1,
+        0,
+        4,
+        14
+      ],
+      [
+        8,
+        13,
+        5,
+        4,
+        0,
+        4,
+        4,
+        4,
+        19
+      ]
+    ]
+  }
+}
