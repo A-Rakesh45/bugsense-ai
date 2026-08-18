@@ -45,10 +45,15 @@ def evaluate_models():
     y_priority = df["priority"]
     y_category = df["category"]
     
-    # Split
-    _, X_test, _, y_sev_test = train_test_split(X, y_severity, test_size=0.2, random_state=42, stratify=y_severity)
-    _, _, _, y_pri_test = train_test_split(X, y_priority, test_size=0.2, random_state=42, stratify=y_priority)
-    _, _, _, y_cat_test = train_test_split(X, y_category, test_size=0.2, random_state=42, stratify=y_category)
+    # SINGLE train_test_split on index to ensure 100% test alignment!
+    _, test_idx = train_test_split(
+        np.arange(len(df)), test_size=0.2, random_state=42, stratify=y_category
+    )
+    
+    X_test = X.iloc[test_idx]
+    y_sev_test = y_severity.iloc[test_idx]
+    y_pri_test = y_priority.iloc[test_idx]
+    y_cat_test = y_category.iloc[test_idx]
     
     X_test_tfidf = vectorizer.transform(X_test)
     

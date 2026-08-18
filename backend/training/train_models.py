@@ -5,7 +5,6 @@ import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
 from preprocess import combine_bug_features
 
 def train_and_save_models():
@@ -14,10 +13,9 @@ def train_and_save_models():
     models_dir = os.path.join(base_dir, "models")
     os.makedirs(models_dir, exist_ok=True)
     
-    if not os.path.exists(dataset_path):
-        print(f"Dataset not found at {dataset_path}. Running generator...")
-        from generate_synthetic_data import generate_dataset
-        generate_dataset(dataset_path, 1200)
+    print(f"Generating high-precision balanced dataset at {dataset_path}...")
+    from generate_synthetic_data import generate_dataset
+    generate_dataset(dataset_path, 1600)
         
     print(f"Loading dataset from {dataset_path}...")
     df = pd.read_csv(dataset_path)
@@ -41,25 +39,30 @@ def train_and_save_models():
     y_priority = df["priority"]
     y_category = df["category"]
     
-    # Train / Test split (80% train, 20% test)
-    X_train, X_test, y_sev_train, y_sev_test = train_test_split(X, y_severity, test_size=0.2, random_state=42, stratify=y_severity)
-    _, _, y_pri_train, y_pri_test = train_test_split(X, y_priority, test_size=0.2, random_state=42, stratify=y_priority)
-    _, _, y_cat_train, y_cat_test = train_test_split(X, y_category, test_size=0.2, random_state=42, stratify=y_category)
+    # SINGLE train_test_split on index to keep X, y_sev, y_pri, y_cat aligned 100%!
+    train_idx, test_idx = train_test_split(
+        np.arange(len(df)), test_size=0.2, random_state=42, stratify=y_category
+    )
+    
+    X_train = X.iloc[train_idx]
+    y_sev_train = y_severity.iloc[train_idx]
+    y_pri_train = y_priority.iloc[train_idx]
+    y_cat_train = y_category.iloc[train_idx]
     
     print("Fitting TF-IDF Vectorizer...")
-    vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2))
+    vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2), sublinear_tf=True)
     X_train_tfidf = vectorizer.fit_transform(X_train)
     
     print("Training Severity Model (Logistic Regression)...")
-    severity_model = LogisticRegression(max_iter=1000, random_state=42)
+    severity_model = LogisticRegression(C=5.0, max_iter=1000, random_state=42)
     severity_model.fit(X_train_tfidf, y_sev_train)
     
     print("Training Priority Model (Logistic Regression)...")
-    priority_model = LogisticRegression(max_iter=1000, random_state=42)
+    priority_model = LogisticRegression(C=5.0, max_iter=1000, random_state=42)
     priority_model.fit(X_train_tfidf, y_pri_train)
     
-    print("Training Category Model (Random Forest)...")
-    category_model = RandomForestClassifier(n_estimators=100, random_state=42)
+    print("Training Category Model (Logistic Regression)...")
+    category_model = LogisticRegression(C=5.0, max_iter=1000, random_state=42)
     category_model.fit(X_train_tfidf, y_cat_train)
     
     # Save Joblib Artifacts

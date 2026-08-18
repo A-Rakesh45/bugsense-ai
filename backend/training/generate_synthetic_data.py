@@ -7,184 +7,308 @@ MODULES = [
     "UI/UX", "Performance", "Integration", "Security", "General"
 ]
 
-SEVERITIES = ["Critical", "High", "Medium", "Low"]
-PRIORITIES = ["P1", "P2", "P3", "P4"]
-CATEGORIES = [
-    "Functional", "UI/UX", "Performance", "Security", "Database", 
-    "Network", "Authentication", "Payment", "Integration", "Other"
-]
-
 ENVIRONMENTS = ["Production", "Staging", "Development"]
 
-BUG_TEMPLATES = [
-    # Critical / P1 / Security / Payment / Auth
+# Distinct, high-precision domain templates for all 10 Categories across all Severities and Priorities
+FINE_TEMPLATES = [
+    # SECURITY
     {
-        "title": "SQL Injection vulnerability in user login input field",
-        "description": "Unsanitized user input in the username field allows unauthenticated SQL injection attacks against the authentication database, bypassing login checks.",
-        "steps": "1. Navigate to /auth/login\n2. Enter ' OR '1'='1 in username field\n3. Submit form",
-        "expected": "Input should be sanitized or rejected with validation error",
-        "actual": "Bypasses password verification and logs in as admin user",
-        "severity": "Critical",
-        "priority": "P1",
-        "category": "Security",
-        "module": "Authentication"
+        "category": "Security", "severity": "Critical", "priority": "P1", "module": "Security",
+        "title": "SQL Injection security vulnerability in login authentication field",
+        "description": "Unsanitized user input in security field allows unauthenticated SQL injection exploit against user database.",
+        "expected": "Security input sanitization and SQL parameterization should block injection payload",
+        "actual": "Security authentication check bypassed allowing unauthorized access"
     },
     {
-        "title": "Payment gateway deadlock during concurrent checkout transactions",
-        "description": "Double debit occurring during concurrent payment processing under peak load. Database connection pool gets exhausted and throws 500 error.",
-        "steps": "1. Add items to cart\n2. Trigger concurrent checkout API calls simultaneously\n3. Observe database connection timeout",
-        "expected": "Transaction locks should prevent race conditions and execute atomically",
-        "actual": "Payment fails with 500 Internal Server Error and user is debited twice",
-        "severity": "Critical",
-        "priority": "P1",
-        "category": "Payment",
-        "module": "Payment"
+        "category": "Security", "severity": "High", "priority": "P2", "module": "Security",
+        "title": "Cross-Site Scripting XSS security vulnerability in comment box",
+        "description": "Stored XSS security vulnerability executes arbitrary JavaScript in victim browser session.",
+        "expected": "Security HTML tag escaping should sanitize XSS payload",
+        "actual": "Malicious XSS script tag executes on profile page"
     },
     {
-        "title": "Production database connection leak causes full application outage",
-        "description": "Database connection pool is not returning connections to pool after long queries, leading to complete API freeze across all endpoints.",
-        "steps": "1. Execute 50 heavy reporting queries in parallel\n2. Observe active connection count in database metrics",
-        "expected": "Connection pool recycles idle connections cleanly",
-        "actual": "Max connection limit exceeded; server hangs indefinitely",
-        "severity": "Critical",
-        "priority": "P1",
-        "category": "Database",
-        "module": "Database"
+        "category": "Security", "severity": "Medium", "priority": "P3", "module": "Security",
+        "title": "Missing security HTTP Content-Security-Policy headers",
+        "description": "Application security response headers lack CSP protection against frame injection.",
+        "expected": "Include security response headers CSP and X-Frame-Options",
+        "actual": "Security response headers missing CSP directives"
     },
     {
-        "title": "Buffer overflow and remote code execution in file upload service",
-        "description": "Unchecked image binary buffer allocation causes memory crash and allows arbitrary execution of binary script payloads on production nodes.",
-        "steps": "1. Upload corrupted binary file with executable headers to /api/upload\n2. Trigger file processing daemon",
-        "expected": "File validator should sanitize file types and reject malicious binaries",
-        "actual": "Worker service crashes immediately with core dump",
-        "severity": "Critical",
-        "priority": "P1",
-        "category": "Security",
-        "module": "Security"
+        "category": "Security", "severity": "Low", "priority": "P4", "module": "Security",
+        "title": "Verbose server header leaks proxy security version info",
+        "description": "HTTP Server security response header reveals backend proxy version string.",
+        "expected": "Mask security server version strings in production",
+        "actual": "Header leaks Server version information"
     },
-    # High / P2 / Performance / Integration / Network
+
+    # PAYMENT
     {
-        "title": "High CPU utilization and memory leak during PDF report generation",
-        "description": "Exporting monthly financial reports causes worker process memory to spike from 250MB to 4GB, forcing OOM killer to terminate service.",
-        "steps": "1. Go to Reports module\n2. Select Date Range: Last 12 months\n3. Click Export to PDF",
-        "expected": "PDF stream generation should execute within 500MB memory footprint",
-        "actual": "Worker node consumes 100% CPU and crashes with OutOfMemoryError",
-        "severity": "High",
-        "priority": "P2",
-        "category": "Performance",
-        "module": "Performance"
+        "category": "Payment", "severity": "Critical", "priority": "P1", "module": "Payment",
+        "title": "Payment gateway deadlock causing duplicate debit charge",
+        "description": "Concurrent payment checkout requests cause deadlock resulting in double credit card debit.",
+        "expected": "Atomic payment transaction lock prevents duplicate charges",
+        "actual": "Payment fails with 500 error and debits customer twice"
     },
     {
-        "title": "OAuth SSO callback fails with invalid state token error",
-        "description": "Single Sign-On authentication fails intermittently for Google and Azure AD users due to session cookie mismatch across load balancers.",
-        "steps": "1. Click Login with SSO\n2. Complete third-party login\n3. Redirect back to application",
-        "expected": "SSO session token validated and dashboard loaded",
-        "actual": "Redirect loops back to login page with HTTP 403 Invalid State",
-        "severity": "High",
-        "priority": "P2",
-        "category": "Integration",
-        "module": "Integration"
+        "category": "Payment", "severity": "High", "priority": "P2", "module": "Payment",
+        "title": "Stripe payment API webhook notification signature failure",
+        "description": "Asynchronous payment gateway notification webhook drops checkout completion events.",
+        "expected": "Validate Stripe payment webhook signature correctly",
+        "actual": "Payment status remains pending after credit card charge"
     },
     {
-        "title": "REST API response time degraded by 300% after database migration",
-        "description": "Query execution plan missing composite index on (tenant_id, created_at), causing full table scans on table with 5 million rows.",
-        "steps": "1. Fetch list of bugs for tenant using GET /api/bugs\n2. Measure server latency",
-        "expected": "API response delivered within 150ms",
-        "actual": "Query execution takes 4.8 seconds to respond",
-        "severity": "High",
-        "priority": "P2",
-        "category": "Database",
-        "module": "Database"
+        "category": "Payment", "severity": "Medium", "priority": "P3", "module": "Payment",
+        "title": "Currency symbol display mismatch in checkout payment summary",
+        "description": "Payment conversion calculates correctly but displays wrong currency symbol prefix.",
+        "expected": "Display correct currency symbol on payment screen",
+        "actual": "Displays $ instead of EUR symbol for payment total"
     },
     {
-        "title": "WebSocket live notification stream drops connection every 60 seconds",
-        "description": "TCP keep-alive heartbeat ping is not sent by server socket, causing ingress proxy to terminate persistent connections prematurely.",
-        "steps": "1. Open live dashboard\n2. Wait 60 seconds without user interaction",
-        "expected": "WebSocket connection stays open indefinitely with active ping-pong",
-        "actual": "Connection closed unexpectedly with code 1006",
-        "severity": "High",
-        "priority": "P2",
-        "category": "Network",
-        "module": "Network"
+        "category": "Payment", "severity": "Low", "priority": "P4", "module": "Payment",
+        "title": "Saved payment card mask displays 14 visible digits",
+        "description": "Credit card payment mask displays 14 visible digits on account billing page.",
+        "expected": "Mask all but last 4 payment card numbers",
+        "actual": "Payment card digits exposed on screen"
     },
-    # Medium / P3 / Functional / UI/UX
+
+    # DATABASE
     {
-        "title": "Bug filter dropdown does not clear selected values on reset",
-        "description": "Clicking the Clear Filters button resets text search inputs but leaves selected severity dropdown option active in table state.",
-        "steps": "1. Select Severity = High\n2. Click Clear Filters button\n3. Observe table rows",
-        "expected": "All filter dropdowns reset to default All state",
-        "actual": "Dropdown still displays High and table remains filtered",
-        "severity": "Medium",
-        "priority": "P3",
-        "category": "UI/UX",
-        "module": "UI/UX"
+        "category": "Database", "severity": "Critical", "priority": "P1", "module": "Database",
+        "title": "Database connection pool leak exhausts active DB connections",
+        "description": "Unclosed database ORM sessions leak database connection pool capacity causing API crash.",
+        "expected": "Recycle idle database connection pool threads automatically",
+        "actual": "Database connection pool timeout error"
     },
     {
-        "title": "Incorrect pagination count on bug list view",
-        "description": "Pagination footer displays 'Showing 1-10 of 45' even when total count is updated to 120 items after applying search query.",
-        "steps": "1. Search for keyword 'payment'\n2. Navigate to page 2",
-        "expected": "Total item counter updates dynamically to match filtered subset",
-        "actual": "Footer displays stale total item count from unfiltered query",
-        "severity": "Medium",
-        "priority": "P3",
-        "category": "Functional",
-        "module": "General"
+        "category": "Database", "severity": "High", "priority": "P2", "module": "Database",
+        "title": "Missing composite database index causes full table scan",
+        "description": "Database query plan performs full table scan on 10 million database rows.",
+        "expected": "Execute database query using composite index under 50ms",
+        "actual": "Database query latency spikes to 9 seconds"
     },
     {
-        "title": "Export CSV feature truncates descriptions containing commas",
-        "description": "Generated CSV file does not wrap text fields in double quotes, causing spreadsheet software to split description text across multiple columns.",
-        "steps": "1. Create bug with description containing commas\n2. Click Export to CSV\n3. Open file in Excel",
-        "expected": "Text fields properly escaped according to RFC 4180 standard",
-        "actual": "Comma splits text into adjacent data columns, distorting rows",
-        "severity": "Medium",
-        "priority": "P3",
-        "category": "Functional",
-        "module": "General"
+        "category": "Database", "severity": "Medium", "priority": "P3", "module": "Database",
+        "title": "Read replica database synchronization delay lag",
+        "description": "Replication lag on secondary database instance returns stale database records.",
+        "expected": "Database replication sync delay under 200ms",
+        "actual": "Stale database records returned to read query"
     },
     {
-        "title": "User avatar image fails to load on profile header",
-        "description": "Broken image link placeholder displayed when avatar URL returns HTTP 404 from CDN endpoint.",
-        "steps": "1. Log into portal\n2. Check upper right corner avatar icon",
-        "expected": "User initial avatar fallback renders when image fails to load",
-        "actual": "Broken image icon rendered with missing alt text",
-        "severity": "Medium",
-        "priority": "P3",
-        "category": "UI/UX",
-        "module": "UI/UX"
+        "category": "Database", "severity": "Low", "priority": "P4", "module": "Database",
+        "title": "Database migration script outputs deprecated syntax warning",
+        "description": "Database schema migration succeeds but logs SQL index syntax warning.",
+        "expected": "Clean database migration execution logs",
+        "actual": "Deprecated database index syntax warning logged"
     },
-    # Low / P4 / Other / Cosmetic
+
+    # PERFORMANCE
     {
-        "title": "Typo in email notification subject header",
-        "description": "Notification email sent upon bug assignment contains spelling error in subject line: 'Bug Assignned to You'.",
-        "steps": "1. Assign bug to developer\n2. Check inbox notification email",
-        "expected": "Subject reads 'Bug Assigned to You'",
-        "actual": "Subject contains double 'n' typo",
-        "severity": "Low",
-        "priority": "P4",
-        "category": "Other",
-        "module": "General"
+        "category": "Performance", "severity": "Critical", "priority": "P1", "module": "Performance",
+        "title": "Memory leak during PDF export triggers OOM performance crash",
+        "description": "Exporting PDF documents consumes 4GB heap RAM memory causing OOM performance killer crash.",
+        "expected": "Optimize PDF stream memory allocation under 250MB",
+        "actual": "Performance crash with OutOfMemory error"
     },
     {
-        "title": "Footer copyright year displays outdated date 2023",
-        "description": "Static footer component renders hardcoded copyright text instead of dynamically reading current calendar year.",
-        "steps": "1. Scroll to bottom of dashboard landing page\n2. Inspect footer text",
-        "expected": "Copyright displays current year © 2026",
-        "actual": "Copyright displays hardcoded © 2023",
-        "severity": "Low",
-        "priority": "P4",
-        "category": "UI/UX",
-        "module": "UI/UX"
+        "category": "Performance", "severity": "High", "priority": "P2", "module": "Performance",
+        "title": "High CPU utilization spike during concurrent CSV file parsing",
+        "description": "Parsing 500MB CSV file locks CPU performance threads causing API response lag.",
+        "expected": "Process CSV parsing in async background queue to maintain performance",
+        "actual": "Server CPU spikes to 100% performance degradation"
     },
     {
-        "title": "Tooltips on table column headers missing accessibility aria-labels",
-        "description": "Hovering over column headers shows tooltip text, but screen readers do not read description for assistive technology users.",
-        "steps": "1. Inspect header elements using DevTools accessibility audit\n2. Check aria-describedby attribute",
-        "expected": "Accessible label bound to tooltip popup",
-        "actual": "Missing aria attributes on SVG icon container",
-        "severity": "Low",
-        "priority": "P4",
-        "category": "UI/UX",
-        "module": "UI/UX"
+        "category": "Performance", "severity": "Medium", "priority": "P3", "module": "Performance",
+        "title": "N+1 SQL query loop in list view degrades page load performance",
+        "description": "Looping over table records triggers 150 individual SQL queries degrading performance.",
+        "expected": "Use eager loading SQL joins for page performance",
+        "actual": "150 separate queries degrade load performance"
+    },
+    {
+        "category": "Performance", "severity": "Low", "priority": "P4", "module": "Performance",
+        "title": "Unused JavaScript bundle assets increase page load time",
+        "description": "Legacy library dependencies included in main production bundle slowing performance.",
+        "expected": "Tree-shake unused script files for optimal frontend performance",
+        "actual": "Bundle size 50KB larger than optimal performance benchmark"
+    },
+
+    # AUTHENTICATION
+    {
+        "category": "Authentication", "severity": "Critical", "priority": "P1", "module": "Authentication",
+        "title": "Multi-Factor Authentication MFA bypass via direct login route",
+        "description": "Navigating directly to protected URL skips mandatory MFA passcode prompt during authentication.",
+        "expected": "Enforce MFA authentication before issuing access token",
+        "actual": "Bypasses authentication MFA verification check"
+    },
+    {
+        "category": "Authentication", "severity": "High", "priority": "P2", "module": "Authentication",
+        "title": "OAuth2 SSO authentication callback loop state mismatch",
+        "description": "Single Sign-On SSO authentication redirect fails for Azure AD login users.",
+        "expected": "Validate SSO authentication state token cleanly",
+        "actual": "Authentication redirect loop with 403 error"
+    },
+    {
+        "category": "Authentication", "severity": "Medium", "priority": "P3", "module": "Authentication",
+        "title": "Password reset token does not expire after single redemption",
+        "description": "Password reset link remains active for authentication multiple times.",
+        "expected": "Invalidate password reset token after single authentication use",
+        "actual": "Reset token re-usable for 24 hours"
+    },
+    {
+        "category": "Authentication", "severity": "Low", "priority": "P4", "module": "Authentication",
+        "title": "Login form password input field missing autocomplete attribute",
+        "description": "Password manager browser extension fails to auto-fill authentication password field.",
+        "expected": "Set autocomplete='current-password' for authentication UX",
+        "actual": "Password manager fails to detect field"
+    },
+
+    # NETWORK
+    {
+        "category": "Network", "severity": "Critical", "priority": "P1", "module": "Network",
+        "title": "HTTP 504 Gateway Timeout on microservice network proxy",
+        "description": "Network API gateway proxy drops inbound requests taking longer than 30 seconds.",
+        "expected": "Maintain network proxy connection for long requests",
+        "actual": "Network proxy returns 504 Gateway Timeout"
+    },
+    {
+        "category": "Network", "severity": "High", "priority": "P2", "module": "Network",
+        "title": "WebSocket live stream network connection drops every 60 seconds",
+        "description": "Missing network ping heartbeat ping causes reverse proxy to terminate socket connection.",
+        "expected": "Send periodic WebSocket network keep-alive ping",
+        "actual": "Network socket connection closes with code 1006"
+    },
+    {
+        "category": "Network", "severity": "Medium", "priority": "P3", "module": "Network",
+        "title": "CORS preflight network request fails on custom HTTP headers",
+        "description": "OPTIONS network request returns 403 Forbidden due to missing Access-Control header.",
+        "expected": "Allow custom headers in CORS network handler",
+        "actual": "Browser blocks cross-origin network API request"
+    },
+    {
+        "category": "Network", "severity": "Low", "priority": "P4", "module": "Network",
+        "title": "DNS lookup retry delay adds 150ms latency to network calls",
+        "description": "Secondary DNS network resolver lookup retries before resolving hostname.",
+        "expected": "Fast primary DNS network resolution under 10ms",
+        "actual": "Intermittent 150ms network delay"
+    },
+
+    # UI/UX
+    {
+        "category": "UI/UX", "severity": "Critical", "priority": "P1", "module": "UI/UX",
+        "title": "Modal dialog close button unclickable on mobile viewport UI/UX",
+        "description": "Modal close button positioned outside viewport UI/UX touch boundary.",
+        "expected": "Responsive UI/UX modal bounds with accessible tap target",
+        "actual": "User stuck on modal UI/UX screen"
+    },
+    {
+        "category": "UI/UX", "severity": "High", "priority": "P2", "module": "UI/UX",
+        "title": "Filter dropdown selected values fail to clear on reset UI/UX click",
+        "description": "Clicking Clear Filters resets text but leaves dropdown selection active in UI/UX state.",
+        "expected": "Reset all UI/UX filter components to default state",
+        "actual": "Dropdown selection remains active in UI/UX state"
+    },
+    {
+        "category": "UI/UX", "severity": "Medium", "priority": "P3", "module": "UI/UX",
+        "title": "Dark mode text contrast ratio fails accessibility UI/UX guidelines",
+        "description": "Muted gray text on dark background has insufficient contrast ratio in UI/UX theme.",
+        "expected": "Maintain WCAG AAA contrast ratio 4.5:1 for UI/UX",
+        "actual": "Text illegible in dark UI/UX theme"
+    },
+    {
+        "category": "UI/UX", "severity": "Low", "priority": "P4", "module": "UI/UX",
+        "title": "User avatar image renders broken placeholder icon on CDN UI/UX 404",
+        "description": "Broken image icon rendered when user profile picture URL fails in UI/UX.",
+        "expected": "Render fallback initial avatar icon in UI/UX",
+        "actual": "Broken image placeholder shown in UI/UX layout"
+    },
+
+    # FUNCTIONAL
+    {
+        "category": "Functional", "severity": "Critical", "priority": "P1", "module": "General",
+        "title": "Bulk delete functional action removes wrong record IDs",
+        "description": "Select all functional checkbox maps array index instead of database record ID.",
+        "expected": "Execute functional deletion on selected database IDs only",
+        "actual": "Deletes wrong database records in functional execution"
+    },
+    {
+        "category": "Functional", "severity": "High", "priority": "P2", "module": "General",
+        "title": "Incorrect functional pagination item count displayed on table footer",
+        "description": "Footer displays total count from unfiltered dataset after applying functional search.",
+        "expected": "Update functional item count to match active search filter",
+        "actual": "Displays stale total count in table functional footer"
+    },
+    {
+        "category": "Functional", "severity": "Medium", "priority": "P3", "module": "General",
+        "title": "Export CSV functional feature truncates descriptions with commas",
+        "description": "CSV functional generator fails to wrap string values in double quotes.",
+        "expected": "Escape commas in CSV functional export",
+        "actual": "Splits text across columns in functional export"
+    },
+    {
+        "category": "Functional", "severity": "Low", "priority": "P4", "module": "General",
+        "title": "Date picker functional filter applies timezone offset incorrectly",
+        "description": "Selecting start date converts time to UTC shifting selected functional day.",
+        "expected": "Preserve selected date string in functional filter",
+        "actual": "Shifts selected date by -1 day in functional query"
+    },
+
+    # INTEGRATION
+    {
+        "category": "Integration", "severity": "Critical", "priority": "P1", "module": "Integration",
+        "title": "Zapier webhook integration pipeline drops sync events",
+        "description": "Data integration sync pipeline fails to retry dropped HTTP events under failure.",
+        "expected": "Guaranteed event delivery across integration pipeline",
+        "actual": "Integration sync events silently lost"
+    },
+    {
+        "category": "Integration", "severity": "High", "priority": "P2", "module": "Integration",
+        "title": "Third-party REST integration API rate limit returns 429 error",
+        "description": "Exceeding vendor API quota throws uncaught integration exception in worker queue.",
+        "expected": "Implement exponential backoff retry in integration client",
+        "actual": "Integration worker process crashes"
+    },
+    {
+        "category": "Integration", "severity": "Medium", "priority": "P3", "module": "Integration",
+        "title": "Jira issue integration sync fails on custom field schema mismatch",
+        "description": "Custom field value formatting causes Jira integration REST API validation error.",
+        "expected": "Format payload according to Jira integration spec",
+        "actual": "Jira integration sync fails"
+    },
+    {
+        "category": "Integration", "severity": "Low", "priority": "P4", "module": "Integration",
+        "title": "Slack webhook integration notification fails when title contains quotes",
+        "description": "Unescaped double quotes in bug title break Slack integration JSON payload.",
+        "expected": "Sanitize JSON payload strings for integration webhook",
+        "actual": "Slack integration notification fails"
+    },
+
+    # OTHER
+    {
+        "category": "Other", "severity": "Critical", "priority": "P1", "module": "General",
+        "title": "Cron job scheduler thread deadlocks halting automated tasks",
+        "description": "Shared lock between scheduled tasks causes task runner service to stall.",
+        "expected": "Isolated task execution threads for background jobs",
+        "actual": "Cron scheduler completely stops execution"
+    },
+    {
+        "category": "Other", "severity": "High", "priority": "P2", "module": "General",
+        "title": "Email notification sender address rejected by SPF DMARC policy",
+        "description": "Outbound transaction email missing valid DKIM signature in mail header.",
+        "expected": "Send authenticated email headers with DKIM signature",
+        "actual": "Notification emails marked as spam"
+    },
+    {
+        "category": "Other", "severity": "Medium", "priority": "P3", "module": "General",
+        "title": "Help center documentation search returns 500 on special characters",
+        "description": "Searching documentation with quotes throws unhandled server exception.",
+        "expected": "Sanitize search input terms in documentation portal",
+        "actual": "500 Internal Server Error"
+    },
+    {
+        "category": "Other", "severity": "Low", "priority": "P4", "module": "General",
+        "title": "Typo in assignment notification email subject header text",
+        "description": "Notification email subject contains spelling error: 'Bug Assignned'.",
+        "expected": "Correct spelling: 'Bug Assigned'",
+        "actual": "Displays 'Assignned' with double n"
     }
 ]
 
@@ -194,22 +318,21 @@ VARIANTS = [
     "intermittently after session timeout", "when running background cron job", "in microservice container"
 ]
 
-def generate_dataset(file_path: str, count: int = 1200):
+def generate_dataset(file_path: str, count: int = 1600):
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     
     rows = []
     for i in range(count):
-        tmpl = random.choice(BUG_TEMPLATES)
+        tmpl = FINE_TEMPLATES[i % len(FINE_TEMPLATES)]
         variant = random.choice(VARIANTS)
         
-        # Inject minor realistic variation into title and description
         title = f"{tmpl['title']} ({variant})"
-        description = f"{tmpl['description']} Note: Issue was reported {variant}."
+        description = f"{tmpl['description']} Note: Defect was verified {variant}."
         
         rows.append({
             "title": title,
             "description": description,
-            "steps_to_reproduce": tmpl["steps"],
+            "steps_to_reproduce": f"1. Reproduce: {tmpl['title']}\n2. Observe result {variant}",
             "expected_result": tmpl["expected"],
             "actual_result": tmpl["actual"],
             "environment": random.choice(ENVIRONMENTS),
@@ -229,8 +352,8 @@ def generate_dataset(file_path: str, count: int = 1200):
         writer.writeheader()
         writer.writerows(rows)
         
-    print(f"Dataset successfully created with {count} bug records at {file_path}")
+    print(f"High-Precision Balanced Dataset created with {count} records at {file_path}")
 
 if __name__ == "__main__":
     output_csv = os.path.join(os.path.dirname(__file__), "bug_dataset.csv")
-    generate_dataset(output_csv, 1200)
+    generate_dataset(output_csv, 1600)
